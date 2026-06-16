@@ -1,11 +1,13 @@
-from db_Connection import connect  
+from db_Connection import connect
+
+# Add Employee
 def add_employee(employees):
-    emp_id = int(input("Enter the employee ID: "))
-    emp_name = input("Enter employee name: ")
-    emp_email = input("Enter employee email: ")
-    emp_phno = input("Enter employee phno: ")
-    department = input("Enter department name: ")
-    
+    emp_id = int(input("Enter Employee ID: "))
+    emp_name = input("Enter Employee Name: ")
+    emp_email = input("Enter Employee Email: ")
+    emp_phno = input("Enter Employee Phone Number: ")
+    department = input("Enter Department Name: ")
+
     employee = {
         "_id": emp_id,
         "Name": emp_name,
@@ -17,97 +19,118 @@ def add_employee(employees):
     employees.insert_one(employee)
     print("Employee Added Successfully!")
 
-connect()
-add_employee(connect())
 
+# View Employees
 def view_employees(employees):
-    # Retrieve all documents from the collection
     data = list(employees.find())
 
     if len(data) == 0:
-        print("No employees Found")
+        print("No Employees Found")
         return
-        
-    print("\nEmployee Records")
-    print("-" * 50)
+
+    print("\n===== EMPLOYEE RECORDS =====")
 
     for emp in data:
-        # Using .get() prevents crashes if a document happens to miss a specific key
-        print("ID:", emp.get('_id'))
-        print("Name:", emp.get('Name'))
-        print("Email:", emp.get('email'))
-        print("Phone:", emp.get('phno'))
-        print("Department:", emp.get('department'))
-        print("-" * 48)
-
-# 1. Establish connection (returns the collection)
-conn = connect()
-
-# 2. Safety check: Execute only if the connection didn't return None
-if conn is not None:
-    # Toggle these comment lines to test adding vs viewing
-    # add_employee(conn)
-    view_employees(conn)
-else:
-    print("Execution halted due to database connection issues.")
+        print("ID:", emp["_id"])
+        print("Name:", emp["Name"])
+        print("Email:", emp["email"])
+        print("Phone:", emp["phno"])
+        print("Department:", emp["department"])
+        print("-" * 30)
 
 
+# Search Employee
 def search_employee(employees):
-    emp_id = int(input("Enter the employee ID to search: "))
+    emp_id = int(input("Enter Employee ID to Search: "))
+
     employee = employees.find_one({"_id": emp_id})
+
     if employee:
-        print("Employee found:")
-        print("ID:", employee.get('_id'))
-        print("Name:", employee.get('Name'))
-        print("Email:", employee.get('email'))
-        print("Phone:", employee.get('phno'))
-        print("Department:", employee.get('department'))
+        print("\nEmployee Found")
+        print("ID:", employee["_id"])
+        print("Name:", employee["Name"])
+        print("Email:", employee["email"])
+        print("Phone:", employee["phno"])
+        print("Department:", employee["department"])
     else:
-        print("Employee not found.")
-
-conn = connect()
-if conn is not None:        
-    search_employee(conn)
-else:       
-    print("Execution halted due to database connection issues.")
+        print("Employee Not Found")
 
 
+# Update Employee
 def update_employee(employees):
-    emp_id = int(input("Enter the employee ID : "))
+    emp_id = int(input("Enter Employee ID: "))
+
     employee = employees.find_one({"_id": emp_id})
 
     if employee is None:
-        print("Employee not found.")
-        return  
-    name = input("Enter new name: ")
-    email = input("Enter new email: ")
-    phno = input("Enter new phone number: ")
-    department = input("Enter new department : ")
+        print("Employee Not Found")
+        return
+
+    name = input("Enter New Name: ")
+    email = input("Enter New Email: ")
+    phno = input("Enter New Phone Number: ")
+    department = input("Enter New Department: ")
 
     employees.update_one(
-            {"_id": emp_id},
-            {"$set": {
+        {"_id": emp_id},
+        {
+            "$set": {
                 "Name": name,
                 "email": email,
                 "phno": phno,
                 "department": department
-            }}
-        )
-print("Employee updated successfully!")
+            }
+        }
+    )
+
+    print("Employee Updated Successfully!")
 
 
+# Delete Employee
 def delete_employee(employees):
-    emp_id = int(input("Enter the employee ID to delete: "))
+    emp_id = int(input("Enter Employee ID to Delete: "))
+
     result = employees.delete_one({"_id": emp_id})
 
     if result.deleted_count > 0:
-        print("Employee deleted successfully!")
+        print("Employee Deleted Successfully!")
     else:
-        print("Employee not found.")
+        print("Employee Not Found")
 
 
-conn = connect()
-if conn is not None:    
-    delete_employee(conn)
-else:   
-    print("Execution halted due to database connection issues.")
+# Test Menu
+if __name__ == "__main__":
+    employees = connect()
+
+    while True:
+        print("\n===== EMPLOYEE MANAGEMENT SYSTEM =====")
+        print("1. Add Employee")
+        print("2. View Employees")
+        print("3. Search Employee")
+        print("4. Update Employee")
+        print("5. Delete Employee")
+        print("6. Exit")
+
+        choice = input("Enter Your Choice: ")
+
+        if choice == "1":
+            add_employee(employees)
+
+        elif choice == "2":
+            view_employees(employees)
+
+        elif choice == "3":
+            search_employee(employees)
+
+        elif choice == "4":
+            update_employee(employees)
+
+        elif choice == "5":
+            delete_employee(employees)
+
+        elif choice == "6":
+            print("Thank You!")
+            break
+
+        else:
+            print("Invalid Choice")
